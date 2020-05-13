@@ -248,6 +248,11 @@ defmodule Ecto.MigratorTest do
     assert SchemaMigration.get_source(MigrationSourceRepo) == "my_schema_migrations"
   end
 
+  test "custom schema is right" do
+    assert SchemaMigration.get_schema(TestRepo) == "public"
+    assert SchemaMigration.get_schema(MigrationSchemaRepo) == "not_public"
+  end
+
   test "logs migrations" do
     output = capture_log fn ->
       :ok = up(TestRepo, 10, ChangeMigration)
