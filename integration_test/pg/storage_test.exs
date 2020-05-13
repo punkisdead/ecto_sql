@@ -124,7 +124,7 @@ defmodule Ecto.Integration.StorageTest do
     :ok = Ecto.Migrator.up(PoolRepo, num, Migration, log: false)
     {:ok, path} = Postgres.structure_dump(tmp_path(), TestRepo.config())
     contents = File.read!(path)
-    assert contents =~ ~s[INSERT INTO public."schema_migrations" (version) VALUES]
+    assert contents =~ ~s[INSERT INTO "public"."schema_migrations" (version) VALUES]
   end
 
   test "storage status is up when database is created" do

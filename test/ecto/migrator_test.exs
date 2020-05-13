@@ -155,6 +155,10 @@ defmodule Ecto.MigratorTest do
     use Ecto.Repo, otp_app: :ecto_sql, adapter: EctoSQL.TestAdapter
   end
 
+  defmodule MigrationSchemaRepo do
+    use Ecto.Repo, otp_app: :ecto_sql, adapter: EctoSQL.TestAdapter
+  end
+
   defmodule EmptyUpDownMigration do
     use Ecto.Migration
 
@@ -168,7 +172,8 @@ defmodule Ecto.MigratorTest do
     def change, do: flush()
   end
 
-  Application.put_env(:ecto_sql, MigrationSourceRepo, [migration_source: "my_schema_migrations"])
+  Application.put_env(:ecto_sql, MigrationSourceRepo, migration_source: "my_schema_migrations")
+  Application.put_env(:ecto_sql, MigrationSchemaRepo, migration_schema: "not_public")
 
   setup do
     Process.put(:migrated_versions, [1, 2, 3])

@@ -191,13 +191,15 @@ defmodule Ecto.Adapters.Postgres do
   @impl true
   def structure_dump(default, config) do
     table = config[:migration_source] || "schema_migrations"
-    with {:ok, versions} <- select_versions(table, config),
+    schema = config[:migration_schema] || "public"
+
+    with {:ok, versions} <- select_versions(table, schema, config),
          {:ok, path} <- pg_dump(default, config),
-         do: append_versions(table, versions, path)
+         do: append_versions(table, schema, versions, path)
   end
 
-  defp select_versions(table, config) do
-    case run_query(~s[SELECT version FROM public."#{table}" ORDER BY version], config) do
+  defp select_versions(table, schema, config) do
+    case run_query(~s[SELECT version FROM "#{schema}"."#{table}" ORDER BY version], config) do
       {:ok, %{rows: rows}} -> {:ok, Enum.map(rows, &hd/1)}
       {:error, %{postgres: %{code: :undefined_table}}} -> {:ok, []}
       {:error, _} = error -> error
@@ -217,12 +219,12 @@ defmodule Ecto.Adapters.Postgres do
     end
   end
 
-  defp append_versions(_table, [], path) do
+  defp append_versions(_table, _schema, [], path) do
     {:ok, path}
   end
 
-  defp append_versions(table, versions, path) do
-    sql = Enum.map_join(versions, &~s[INSERT INTO public."#{table}" (version) VALUES (#{&1});\n])
+  defp append_versions(table, schema, versions, path) do
+    sql = Enum.map_join(versions, &~s[INSERT INTO "#{schema}"."#{table}" (version) VALUES (#{&1});\n])
 
     File.open!(path, [:append], fn file ->
       IO.write(file, sql)

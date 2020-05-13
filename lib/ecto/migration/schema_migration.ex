@@ -48,4 +48,8 @@ defmodule Ecto.Migration.SchemaMigration do
   def get_source(repo) do
     Keyword.get(repo.config, :migration_source, "schema_migrations")
   end
+
+  def get_schema(repo) do
+    Keyword.get(repo.config, :migration_schema, "public")
+  end
 end
